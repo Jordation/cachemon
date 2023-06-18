@@ -83,22 +83,22 @@ func NewCache(opts ...cfgFunc) *Cache {
 	return cache
 }
 
-func (c *Cache) Hit(request []byte) (data []byte, ok bool) {
+func (c *Cache) Hit(key, value []byte) (data []byte, ok bool) {
 	c.Lock()
 	defer c.Unlock()
 
 	c.hash.Reset()
-	c.hash.Write(request)
-	key := c.hash.Sum64()
+	c.hash.Write(key)
+	hashedKey := c.hash.Sum64()
 
 	// hit
-	if _, ok = c.cMap[key]; ok {
-		return c.cMap[key].data, ok
+	if _, ok = c.cMap[hashedKey]; ok {
+		return c.cMap[hashedKey].data, ok
 	}
 
 	// new entry
-	c.cMap[key] = newCacheItem(request)
-	return c.cMap[key].data, ok
+	c.cMap[hashedKey] = newCacheItem(value)
+	return nil, ok
 }
 
 func (c *Cache) Del(key uint64) (ok bool) {
